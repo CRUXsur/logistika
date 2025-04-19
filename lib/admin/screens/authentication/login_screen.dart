@@ -1,18 +1,79 @@
+import 'dart:convert';
+
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
+
 
 import '../screens.dart';
+import 'package:logistika/api_connection/api_connection.dart';
 
 
 
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   var formKey = GlobalKey<FormState>();
+
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var isObsecure = true.obs;
+
+
+  loginAdminNow() async {
+
+    Fluttertoast.showToast(msg: "login procedure is in progress!!.");
+
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.login),
+        body: {
+          "email": emailController.text.trim(),
+          "password": passwordController.text.trim(),
+        },
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+          {
+        var resBodyOfLogin = jsonDecode(res.body);
+        if(resBodyOfLogin['success'] == true)
+        {
+          Fluttertoast.showToast(msg: "Ingreso Exitoso!!.");
+
+          //save userInfo to local Storage using Shared Prefrences
+
+
+          Future.delayed(const Duration(milliseconds: 2000), ()
+          {
+            Get.to( const HomeScreen());
+          });
+
+        }
+        else
+        {
+          Fluttertoast.showToast(msg: "Incorrect Credentials.\nPlease write correct password or email and Try Again.");
+        }
+      }
+      else
+      {
+        Fluttertoast.showToast(msg: "Status is not 200");
+      }
+    }
+    catch(errorMsg)
+    {
+      //print("Error :: " + errorMsg.toString());
+    }
+  }
+
+
 
 
   @override
@@ -80,7 +141,7 @@ class LoginScreen extends StatelessWidget {
                                   //email
                                   TextFormField(
                                     controller: emailController,
-                                    validator: (val) => val == "" ? "Please write email" : null,
+                                    validator: (val) => val == "" ? "PorFavor, escriba su Email" : null,
                                     decoration: InputDecoration(
                                       prefixIcon: const Icon(
                                         Icons.email,
@@ -127,7 +188,7 @@ class LoginScreen extends StatelessWidget {
                                         ()=> TextFormField(
                                       controller: passwordController,
                                       obscureText: isObsecure.value,
-                                      validator: (val) => val == "" ? "Please write password" : null,
+                                      validator: (val) => val == "" ? "PorFavor, escriba su password" : null,
                                       decoration: InputDecoration(
                                         prefixIcon: const Icon(
                                           Icons.vpn_key_sharp,
@@ -191,7 +252,7 @@ class LoginScreen extends StatelessWidget {
                                       {
                                         if(formKey.currentState!.validate())
                                         {
-                                          //loginAdminNow();
+                                          loginAdminNow();
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(10),//30
@@ -201,7 +262,7 @@ class LoginScreen extends StatelessWidget {
                                           horizontal: 28,
                                         ),
                                         child: Text(
-                                          "Login",
+                                          "Ingresar",
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -221,7 +282,7 @@ class LoginScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Text(
-                                    "Don't have an Account?"
+                                    "No tienes una cuenta?"
                                 ),
                                 TextButton(
                                   onPressed: ()
@@ -229,7 +290,7 @@ class LoginScreen extends StatelessWidget {
                                     Get.to( RegisterScreen());
                                   },
                                   child: const Text(
-                                    "SignUp Here",
+                                    "Regsitrate Aqui",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16,

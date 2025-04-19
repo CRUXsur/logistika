@@ -1,20 +1,127 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 import '../screens.dart';
+import '../../model/model.dart';
+import 'package:logistika/api_connection/api_connection.dart';
 
 
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   RegisterScreen({super.key});
 
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
   var formKey = GlobalKey<FormState>();
+
   var nameController = TextEditingController();
   var emailController = TextEditingController();
   var celularController = TextEditingController();
   var passwordController = TextEditingController();
   var isObsecure = true.obs;
+
+
+  //validate admin new email, before save to db server
+  validateAdminEmail() async
+  {
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.validateEmail),
+        body: {
+          'email': emailController.text.trim(),
+        },
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+          {
+        var resBodyOfValidateEmail = jsonDecode(res.body);
+
+        if(resBodyOfValidateEmail['emailFound'] == true)
+        {
+          Fluttertoast.showToast(msg: "El Email ya esta en uso!. Intente con otro.");// Email is already in someone else use. Try another email.");
+        }
+        else
+        {
+          //Fluttertoast.showToast(msg: "You are ready to save to DB SERVER!");
+          //register & save new admin record to database
+          registerAndSaveAdminRecord();
+        }
+      }
+      else
+      {
+        Fluttertoast.showToast(msg: "Status is not 200");
+      }
+
+    }
+    catch(e)
+    {
+      //print(e.toString());
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
+
+  //Save admin new register to server db
+  registerAndSaveAdminRecord() async
+  {
+    Admin adminModel = Admin(
+      1,
+      nameController.text.trim(),
+      emailController.text.trim(),
+      celularController.text.trim(),
+      passwordController.text.trim(),
+    );
+
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.signUp),
+        body: adminModel.toJson(),
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+          {
+        var resBodyOfSignUp = jsonDecode(res.body);
+        if(resBodyOfSignUp['success'] == true)
+        {
+          Fluttertoast.showToast(msg: "FELICIDADES!, Te registraste exitosamente en FiveStick.");//Congratulations, you are SignUp Successfully.");
+
+          setState(() {
+            nameController.clear(); //same as! nameController.text = "";
+            emailController.clear();
+            celularController.clear();
+            passwordController.clear();
+          });
+
+          Future.delayed(const Duration(milliseconds: 2000), ()
+          {
+            Get.to( LoginScreen());
+          });
+
+        }
+        else
+        {
+          Fluttertoast.showToast(msg: "ERROR OCURRIDO!, Vuelve a Intentar.");// Error Occurred, Try Again.");
+        }
+      }
+    }
+    catch(e)
+    {
+      //print(e.toString());
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -69,13 +176,13 @@ class RegisterScreen extends StatelessWidget {
                           //name
                           TextFormField(
                             controller: nameController,
-                            validator: (val) => val == "" ? "Please write name" : null,
+                            validator: (val) => val == "" ? "PorFavor, escriba su nombre completo" : null,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
                                 Icons.person,
                                 color: Colors.black,
                               ),
-                              hintText: "name...",
+                              hintText: "nombre completo...",
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(3),//30
                                 borderSide: const BorderSide(
@@ -114,7 +221,7 @@ class RegisterScreen extends StatelessWidget {
                           //email
                           TextFormField(
                             controller: emailController,
-                            validator: (val) => val == "" ? "Please write email" : null,
+                            validator: (val) => val == "" ? "PorFavor, escriba su Email" : null,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
                                 Icons.email,
@@ -159,7 +266,7 @@ class RegisterScreen extends StatelessWidget {
                           //celular
                           TextFormField(
                             controller: celularController,
-                            validator: (val) => val == "" ? "Please write celularNumber" : null,
+                            validator: (val) => val == "" ? "PorFavor, escriba su numero de Celular" : null,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
                                 Icons.add_call,
@@ -206,7 +313,7 @@ class RegisterScreen extends StatelessWidget {
                                 ()=> TextFormField(
                               controller: passwordController,
                               obscureText: isObsecure.value,
-                              validator: (val) => val == "" ? "Please write password" : null,
+                              validator: (val) => val == "" ? "PorFavor, escriba su password" : null,
                               decoration: InputDecoration(
                                 prefixIcon: const Icon(
                                   Icons.vpn_key_sharp,
@@ -271,7 +378,7 @@ class RegisterScreen extends StatelessWidget {
                                 if(formKey.currentState!.validate())
                                 {
                                   //validate the email
-                                  //validateUserEmail();
+                                  validateAdminEmail();
                                 }
                               },
                               borderRadius: BorderRadius.circular(3),//30
@@ -281,7 +388,7 @@ class RegisterScreen extends StatelessWidget {
                                   horizontal: 28,
                                 ),
                                 child: Text(
-                                  "SignUp",
+                                  "Registrarme",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,//16
@@ -301,7 +408,7 @@ class RegisterScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                            "Already have an Account?"
+                            "Ya tienes una cuenta?"
                         ),
                         TextButton(
                           onPressed: ()
@@ -310,7 +417,7 @@ class RegisterScreen extends StatelessWidget {
                             Get.to( LoginScreen());
                           },
                           child: const Text(
-                            "Login Here",
+                            "Ingresa Aqui",
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,

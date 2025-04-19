@@ -1,6 +1,7 @@
 class API {
   // static const hostConnect = "http://quanticasoft.com/api_logistika";
-  static const hostConnect = "http://localhost/api_logistika";
+  // static const hostConnect = "http://localhost/api_logistika";
+  static const hostConnect = "http://10.0.2.2/api_logistika";
   static const hostAdmin = "$hostConnect/admin";
 
 
