@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       home: FutureBuilder(
         future: future,
         builder: (context, dataSnapShot){
-          return RegisterScreen();
+          return LoginScreen();
         },
       ),
     );
