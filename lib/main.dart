@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'admin/providers/app_state_provider.dart';
+
 
 
 void main() {
   runApp(const ProviderScope(child: MyApp()) );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
+class MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   //nos permite crear este observador (del estado de la app)
   @override
@@ -33,15 +34,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state){
-    print('State: $state');
+    // print('State: $state');
+    // aqui puedo tener el provider que yo estoy escuchando
+    // .notifier , lo autorizo
+    // state : lo actualizo
+    ref.read(AppStateProvider.notifier).state = state;
 
     /*
-    |  resumed
-    |  inactive
-    |  paused
-    |  detached
+    | resumed   :  app paso del background al foreground
+    | inactive  :  app ya no esta focused, no esta en 1er plano
+    | paused    :  app se mando a segundo plano
+    | detached  :  app destruida
     */
-
     super.didChangeAppLifecycleState(state);
   }
 
