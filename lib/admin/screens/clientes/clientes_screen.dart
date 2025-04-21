@@ -24,6 +24,12 @@ class ClientesScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () { },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
