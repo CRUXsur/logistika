@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../screens.dart';
+
 
 
 class ClientesScreen extends StatelessWidget {
@@ -27,7 +31,9 @@ class ClientesScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () { },
+            onPressed: () {
+              Get.to(AddNewClient());
+            },
           ),
         ],
       ),
