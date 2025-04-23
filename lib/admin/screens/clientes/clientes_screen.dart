@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------------
-
-
-
-
+//
+//
+//
+//------------------------------------------------------------------------------
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -134,7 +134,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
                     {
                       List<Clientes> clientList = dataSnapShot.data!;
                       return SizedBox(
-                        //height: 500,
+                        // height: 500,
                         child: ListView.separated(
                           itemCount: clientList.length,
                           shrinkWrap: true,
@@ -181,7 +181,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
                                   SlidableAction(
                                     icon: Icons.draw,
                                     onPressed: (context) {
-                                      // Get.to(EditClient(clickedClienteEdit: eachClientData,));
+                                      Get.to(EditClient(clickedClienteEdit: eachClientData,));
                                     },
                                     backgroundColor: Colors.grey,
                                     label: "EDIT",

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,22 +8,35 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:fluttertoast/fluttertoast.dart';
 
+
 import 'package:logistika/admin/model/model.dart';
 import 'package:logistika/api_connection/api_connection.dart';
 
 
-class AddNewClient extends StatelessWidget {
-  AddNewClient({super.key});
+
+class EditClient extends StatefulWidget {
+
+  final Clientes? clickedClienteEdit;
+
+  const EditClient({super.key, this.clickedClienteEdit});
+
+  @override
+  State<EditClient> createState() => _EditClientState();
+}
+
+class _EditClientState extends State<EditClient> {
 
   //controllers for add items model
   var formKey = GlobalKey<FormState>();
-  var negocioController = TextEditingController();
-  var contactoController = TextEditingController();
-  var movilController = TextEditingController();
-  var categoriaController = TextEditingController();
-  var tipoController = TextEditingController();
+  TextEditingController negocioController = TextEditingController();
+  TextEditingController contactoController = TextEditingController();
+  TextEditingController movilController = TextEditingController();
+  TextEditingController categoriaController = TextEditingController();
+  TextEditingController tipoController = TextEditingController();
+  TextEditingController razonController = TextEditingController();
+  TextEditingController nitController = TextEditingController();
 
-//this to declare
+  //this to declare
 //vars for image to db--------------------------
   RxList<int> _imageSelectedByte = <int>[].obs;
   Uint8List get imageSelectedByte => Uint8List.fromList(_imageSelectedByte);
@@ -34,6 +46,8 @@ class AddNewClient extends StatelessWidget {
 
   final ImagePicker _picker = ImagePicker();
   XFile? pickedImageXFile;
+
+  // CurrentAdmin currentAdmin = Get.put(CurrentAdmin());
 
   setSelectedImage(Uint8List selectedImage)
   {
@@ -147,58 +161,69 @@ class AddNewClient extends StatelessWidget {
     );
   }
 
-//-------------------------------------------------------------------
+//----------------------------------------------------------------
 
+//update Client
+  updateClient() async{
 
-//------------------------------------------------------------------------------
-  saveNewClient() async {
-    String newCodigo = ( ((DateTime.now().millisecondsSinceEpoch)).toString().substring(7) );
-
-    // Se elimina cliente_id, no es necesario enviarlo
-    Clientes cliente = Clientes(
-      codigo: newCodigo,
-      negocio: negocioController.text.trim(),
-      categoria: categoriaController.text.trim(),
-      tipo: tipoController.text.trim(),
-      contacto: contactoController.text.trim(),
-      razonSocial: '',
-      nit: '',
-      latitude: '',
-      longitude: '',
-      fijo: '',
-      movil: movilController.text.trim(),
-      email: '',
-      totalCompra: 0,
-      image: DateTime.now().millisecondsSinceEpoch.toString() + "-" + imageSelectedName,  // Solo pasamos el nombre de la imagen
-    );
-
-    try {
-      var response = await http.post(
-        Uri.parse(API.saveNewClient),
-        body: cliente.toJson(base64Encode(imageSelectedByte)),  // No enviamos base64 de la imagen
+    try
+    {
+      var res = await http.post(
+          Uri.parse(API.editClient),
+          body:
+          {
+            "cliente_id": widget.clickedClienteEdit!.cliente_id.toString(),
+            "negocio": negocioController.text.trim(),
+            "categoria": categoriaController.text.trim(),
+            "tipo": tipoController.text.trim(),
+            "contacto": contactoController.text.trim(),
+            "razonSocial": razonController.text.trim(),
+            "nit": nitController.text.trim(),
+            "movil": movilController.text.trim(),
+          }
       );
 
-      if (response.statusCode == 200) {
-        var resBodyOfUploadItem = jsonDecode(response.body);
+      if(res.statusCode == 200)
+      {
+        var resBodyOfUploadItem = jsonDecode(res.body);
 
-        if (resBodyOfUploadItem['success'] == true) {
-          Fluttertoast.showToast(msg: "Cliente nuevo ingresado con éxito");
-          Get.back();  // Volver al anterior
-        } else {
-          Fluttertoast.showToast(msg: "Cliente no ingresado!. Vuelve a intentarlo.");
+        if(resBodyOfUploadItem['success'] == true)
+        {
+          Fluttertoast.showToast(msg: "Updated successfully");
+
+          //Get.to(ClientesScreen);
+          Get.back();
+          //Get.to(ItemFragmentScreen());
+
         }
-      } else {
+        else
+        {
+          Fluttertoast.showToast(msg: "Client not updated. Error, Try Again.");
+        }
+      }
+      else
+      {
         Fluttertoast.showToast(msg: "Status is not 200");
       }
-    } catch (errorMsg) {
+    }
+    catch(errorMsg)
+    {
       print("Error:: " + errorMsg.toString());
     }
   }
-//------------------------------------------------------------------------------
 
 
   @override
   Widget build(BuildContext context) {
+
+    negocioController.text = widget.clickedClienteEdit!.negocio.toString();
+    contactoController.text = widget.clickedClienteEdit!.contacto.toString();
+    movilController.text = widget.clickedClienteEdit!.movil.toString();
+    categoriaController.text = widget.clickedClienteEdit!.categoria.toString();
+    tipoController.text = widget.clickedClienteEdit!.tipo.toString();
+    razonController.text = widget.clickedClienteEdit!.razonSocial.toString();
+    nitController.text = widget.clickedClienteEdit!.nit.toString();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.indigo,
@@ -206,7 +231,7 @@ class AddNewClient extends StatelessWidget {
         //automaticallyImplyLeading: false,
         elevation: 0,
         title: const Text(
-          "Nuevo Cliente",
+          "Editar Cliente",
           style: TextStyle(
             color: Colors.white,
           ),
@@ -218,44 +243,48 @@ class AddNewClient extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+
               const SizedBox(height: 15),
-              //display selected image by user
-              Obx(()=> ConstrainedBox(
+              //display client front image
+              ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
                   maxHeight: MediaQuery.of(context).size.width * 0.6,
                 ),
-                child: imageSelectedByte.length > 0
-                    ? Image.memory(imageSelectedByte, fit: BoxFit.contain,)
-                    : const Placeholder(color: Colors.indigo,),
-              )),
-              const SizedBox(height: 10),
-              //select image btn
-              Material(
-                elevation: 1,
-                color: Colors.indigo.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(3),
-                child: InkWell(
-                  onTap: ()
-                  {
-                    showDialogBoxForImagePickingAndCapturing(context);
-                  },
-                  borderRadius: BorderRadius.circular(3),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 12,
-                    ),
-                    child: Text(
-                      "Front Image",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
+                child: FadeInImage(
+                  placeholder: const AssetImage("assets/no-image.jpg"),
+                  image: NetworkImage(
+                    API.hostImagesClients + widget.clickedClienteEdit!.image!,
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
+              //select image btn
+              // Material(
+              //   elevation: 1,
+              //   color: Colors.indigo.withOpacity(0.8),
+              //   borderRadius: BorderRadius.circular(3),
+              //   child: InkWell(
+              //     onTap: ()
+              //     {
+              //       showDialogBoxForImagePickingAndCapturing(context);
+              //     },
+              //     borderRadius: BorderRadius.circular(3),
+              //     child: const Padding(
+              //       padding: EdgeInsets.symmetric(
+              //         horizontal: 30,
+              //         vertical: 12,
+              //       ),
+              //       child: Text(
+              //         "Front Image",
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 18,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               const SizedBox(height: 20),
               //fill item form
               Form(
@@ -277,8 +306,9 @@ class AddNewClient extends StatelessWidget {
                               Icons.add_business_outlined,
                               color: Colors.indigo,
                             ),
-                            hintText: "Nombre Cliente...",
-                            labelText: "Cliente",
+                            hintText: widget.clickedClienteEdit!.negocio.toString(),
+                            //labelText: "Cliente",
+                            labelText: widget.clickedClienteEdit!.negocio.toString(),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(3),
                               borderSide: const BorderSide(
@@ -312,13 +342,13 @@ class AddNewClient extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        //codigo - unidad - categoria
+                        //contacto - celular
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             //contacto
                             Container(
-                              width: 220,
+                              width: 200,
                               height: 45,
                               child: TextFormField(
                                 controller: contactoController,
@@ -329,7 +359,7 @@ class AddNewClient extends StatelessWidget {
                                     color: Colors.indigo,
                                   ),
                                   hintText: "Contacto",
-                                  labelText: "Contacto",
+                                  labelText: widget.clickedClienteEdit!.contacto.toString(),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(3),
                                     borderSide: const BorderSide(
@@ -366,7 +396,7 @@ class AddNewClient extends StatelessWidget {
                             const Spacer(),
                             //celular
                             Container(
-                              width: 150,
+                              width: 170,
                               height: 45,
                               child: TextFormField(
                                 controller: movilController,
@@ -377,7 +407,7 @@ class AddNewClient extends StatelessWidget {
                                     color: Colors.indigo,
                                   ),
                                   hintText: "Celular",
-                                  labelText: "Celular",
+                                  labelText: widget.clickedClienteEdit!.movil.toString(),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(3),
                                     borderSide: const BorderSide(
@@ -431,7 +461,7 @@ class AddNewClient extends StatelessWidget {
                                     color: Colors.indigo,
                                   ),
                                   hintText: "Categoria",
-                                  labelText: "Categoria",
+                                  labelText: widget.clickedClienteEdit!.categoria.toString(),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(3),
                                     borderSide: const BorderSide(
@@ -479,7 +509,116 @@ class AddNewClient extends StatelessWidget {
                                     color: Colors.indigo,
                                   ),
                                   hintText: "Tipo",
-                                  labelText: "Tipo",
+                                  labelText: widget.clickedClienteEdit!.tipo.toString(),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white60,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.indigo,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.indigoAccent,
+                                    ),
+                                  ),
+                                  disabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white60,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 6,
+                                  ),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        //razon social
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            //razon social
+                            Container(
+                              width: 350,
+                              height: 40,
+                              child: TextFormField(
+                                controller: razonController,
+                                validator: (val) => val == "" ? "Please write razon social" : null,
+                                decoration: InputDecoration(
+                                  prefixIcon: const Icon(
+                                    Icons.abc,
+                                    color: Colors.indigo,
+                                  ),
+                                  hintText: "razon social",
+                                  labelText: widget.clickedClienteEdit!.razonSocial.toString(),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white60,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.indigo,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.indigoAccent,
+                                    ),
+                                  ),
+                                  disabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(3),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white60,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 6,
+                                  ),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                ),
+                              ),
+                            ),
+                            //const Spacer(),
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        //nit
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            //nit
+                            Container(
+                              width: 250,
+                              height: 40,
+                              child: TextFormField(
+                                controller: nitController,
+                                validator: (val) => val == "" ? "Please write nit" : null,
+                                decoration: InputDecoration(
+                                  prefixIcon: const Icon(
+                                    Icons.numbers,
+                                    color: Colors.indigo,
+                                  ),
+                                  hintText: "nit",
+                                  labelText: widget.clickedClienteEdit!.nit.toString(),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(3),
                                     borderSide: const BorderSide(
@@ -519,20 +658,17 @@ class AddNewClient extends StatelessWidget {
                         //confirm and proceed btn
                         Obx(()=> Material(
                           elevation: 1,
-                          color: imageSelectedByte.length > 0 ? Colors.indigo : Colors.indigo.withOpacity(0.2),
+                          //color: Colors.indigo,
+                          color: imageSelectedByte.length > 0 ? Colors.indigo.withOpacity(0.2) : Colors.indigo,
                           borderRadius: BorderRadius.circular(3),
                           child: InkWell(
                             onTap: ()
                             {
-                              if(imageSelectedByte.length > 0)
-                              {
-                                //save new client info
-                                saveNewClient();
-                              }
-                              else
-                              {
-                                Fluttertoast.showToast(msg: "Please attach new Client / screenshot.");
-                              }
+                              //Keyboard unfocus!!
+                              FocusScope.of(context).unfocus();
+
+                              //update client info
+                              updateClient();
                             },
                             borderRadius: BorderRadius.circular(30),
                             child: const Padding(
@@ -557,6 +693,7 @@ class AddNewClient extends StatelessWidget {
                 ),
               )
               //save button
+
             ],
           ),
         ),
@@ -564,4 +701,7 @@ class AddNewClient extends StatelessWidget {
 
     );
   }
+
+
 }
+
