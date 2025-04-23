@@ -28,6 +28,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // 1. Verifica si el GPS está habilitado
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // El GPS está deshabilitado
+      await Geolocator.openLocationSettings();
+      return;
+    }
+
+    // 2. Verifica permisos
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permiso denegado
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permiso denegado permanentemente
+      return;
+    }
+
+    // 3. Obtener la ubicación
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
