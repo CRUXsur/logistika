@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -154,25 +155,46 @@ class AddNewClient extends StatelessWidget {
   saveNewClient() async {
     String newCodigo = ( ((DateTime.now().millisecondsSinceEpoch)).toString().substring(7) );
 
-    // Se elimina cliente_id, no es necesario enviarlo
-    Clientes cliente = Clientes(
-      codigo: newCodigo,
-      negocio: negocioController.text.trim(),
-      categoria: categoriaController.text.trim(),
-      tipo: tipoController.text.trim(),
-      contacto: contactoController.text.trim(),
-      razonSocial: '',
-      nit: '',
-      latitude: '',
-      longitude: '',
-      fijo: '',
-      movil: movilController.text.trim(),
-      email: '',
-      totalCompra: 0,
-      image: DateTime.now().millisecondsSinceEpoch.toString() + "-" + imageSelectedName,  // Solo pasamos el nombre de la imagen
-    );
-
     try {
+      // 1. Obtener ubicación
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Fluttertoast.showToast(msg: "Activa la ubicación del dispositivo.");
+        await Geolocator.openLocationSettings();
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+          Fluttertoast.showToast(msg: "Permiso de ubicación denegado.");
+          return;
+        }
+      }
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      print("Latitud: ${position.latitude}, Longitud: ${position.longitude}");
+
+      //! 2. Crear objeto cliente con lat/lng
+          // Se elimina cliente_id, no es necesario enviarlo
+          Clientes cliente = Clientes(
+            codigo: newCodigo,
+            negocio: negocioController.text.trim(),
+            categoria: categoriaController.text.trim(),
+            tipo: tipoController.text.trim(),
+            contacto: contactoController.text.trim(),
+            razonSocial: '',
+            nit: '',
+            latitude: position.latitude.toString(),
+            longitude: position.longitude.toString(),
+            fijo: '',
+            movil: movilController.text.trim(),
+            email: '',
+            totalCompra: 0,
+            image: DateTime.now().millisecondsSinceEpoch.toString() + "-" + imageSelectedName,  // Solo pasamos el nombre de la imagen
+          );
+
+      //! 3. Enviar datos al servidor
       var response = await http.post(
         Uri.parse(API.saveNewClient),
         body: cliente.toJson(base64Encode(imageSelectedByte)),  // No enviamos base64 de la imagen
