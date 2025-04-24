@@ -16,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   GoogleMapController? mapController;
-  LatLng _initialPosition = const LatLng(-17.7833, -63.1833); // Ej: Santa Cruz
-  final Set<Marker> _markers = {};
+  Position? _currentPosition; // <- ahora usamos esto en vez de _initialPosition
+  Set<Marker> _markers = {};
   bool _isLoading = true;
 
   @override
@@ -28,38 +28,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // 1. Verifica si el GPS está habilitado
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // El GPS está deshabilitado
       await Geolocator.openLocationSettings();
       return;
     }
 
-    // 2. Verifica permisos
-    permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permiso denegado
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
         return;
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      // Permiso denegado permanentemente
-      return;
-    }
-
-    // 3. Obtener la ubicación
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+      desiredAccuracy: LocationAccuracy.high,
+    );
 
     setState(() {
-      _initialPosition = LatLng(position.latitude, position.longitude);
+      _currentPosition = position;
       _isLoading = false;
     });
   }
@@ -99,17 +87,22 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text("Clientes en el Mapa"),
         backgroundColor: Colors.indigo,
       ),
-      body: _isLoading
+      body: _isLoading || _currentPosition == null
           ? Center(child: CircularProgressIndicator())
           : GoogleMap(
         initialCameraPosition: CameraPosition(
-          target: _initialPosition,
+          target: LatLng(
+            _currentPosition!.latitude,
+            _currentPosition!.longitude,
+          ),
           zoom: 14,
         ),
         markers: _markers,
         myLocationEnabled: true,
+        myLocationButtonEnabled: true,
         onMapCreated: (controller) => mapController = controller,
       ),
     );
   }
+
 }
