@@ -66,6 +66,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
     return allItemsList;
   }
 
+  //get repo items from server -------------------------------------------------
   Future<List<Almacen>> getRepoItems() async {
     List<Almacen> repoItemsList = [];
 
@@ -100,6 +101,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
     return repoItemsList;
   }
 
+//------------------------------------------------------------------------------
 
   @override
   void initState() {
@@ -108,7 +110,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
     getRepoItems();
   }
 
-//------------------------------------------------------------
+//------------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     getAllItems();
@@ -453,7 +455,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                     ],
                   ),
                 ),
-                // repoItemWidget(context),
+                repoItemWidget(context),
               ],
             )
                 : Center(
@@ -473,8 +475,10 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
     );
   }
 
-//------------------------------------------------------------
+//------------------------------------------------------------------------------
 
+
+  //search item ----------------------------------------------------------------
   Widget showSearchBarWidget() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -536,7 +540,160 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
   }
 
   //get reposition item --------------------------------------------------------
-
+  repoItemWidget(context) {
+    // final Color color = Utils(context).color;
+    // Size size = Utils(context).getScreenSize;
+    final Color color = Color(0xFFFFFFFF);
+    Size size =  MediaQuery.of(context).size;
+    return FutureBuilder(
+      future: getRepoItems(),
+      builder: (context, AsyncSnapshot<List<Almacen>> dataSnapShot)
+      {
+        // if(dataSnapShot.connectionState == ConnectionState.waiting)
+        // {
+        //   return const Center(
+        //     child: CircularProgressIndicator(),
+        //   );
+        // }
+        if(dataSnapShot.data == null)
+        {
+          return const Center(
+            child: Text(
+              "No items found",
+            ),
+          );
+        }
+        if(dataSnapShot.data!.length > 0)
+        {
+          return SizedBox(
+            height: size.height*0.25,
+            width: size.width*0.90,
+            child: ListView.builder(
+                itemCount: dataSnapShot.data!.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index){
+                  Almacen eachItemData = dataSnapShot.data![index];
+                  //------------------------------------------------------
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Material(
+                      color: Colors.brown.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(6),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(6),
+                        onTap: () {},
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 10,),
+                                    //image
+                                    FadeInImage(
+                                      width: size.width*0.22,
+                                      height: size.width * 0.22,
+                                      placeholder: const AssetImage("assets/no-image.jpg"),
+                                      image: NetworkImage(
+                                        API.hostImagesProducts + eachItemData.image!,
+                                      ),
+                                    ),
+                                    // Image.network(
+                                    //   'https://i.ibb.co/F0s3FHQ/Apricots.png',
+                                    //   //width: size.width*0.22,
+                                    //   height: size.width * 0.22,
+                                    //   fit: BoxFit.fill,
+                                    // ),
+                                    Column(
+                                      children: [
+                                        const SizedBox(height: 10,),
+                                        //to order cart
+                                        GestureDetector(
+                                          onTap: () {
+                                            // add item to order cart
+                                            // addItemToOrderCart(eachItemData.almacen_id!);
+                                          },
+                                          child: SizedBox(
+                                            width: 40,
+                                            height: 40,
+                                            child: Image.asset(
+                                              "assets/images/pedidos.png",
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6,),
+                                        //cost price
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            TextWidget(
+                                              text: 'Bs.',
+                                              color: color,
+                                              textSize: 20,
+                                            ),
+                                            const SizedBox(width: 6,),
+                                            TextWidget(
+                                              text: eachItemData.costo!.toString(),
+                                              color: color,
+                                              textSize: 20,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6,),
+                                        //qtty & unit
+                                        Row(
+                                          children: [
+                                            TextWidget(
+                                              text: eachItemData.finale!.toString(),
+                                              color: Colors.red,
+                                              textSize: 24,
+                                              isTitle: true,
+                                            ),
+                                            TextWidget(
+                                              text: eachItemData.unidad!,
+                                              color: color,
+                                              textSize: 18,
+                                              isTitle: true,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6,),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                //const PriceWidget(),
+                                const SizedBox(height: 10),
+                                TextWidget(text: eachItemData.producto!, color: color, textSize: 16, isTitle: true,),
+                                //const SizedBox(height: 5),
+                              ]
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                  //------------------------------------------------------
+                }
+            ),
+          );
+        }
+        else
+        {
+          return Center(
+            //child: Text("       Empty, No Data."),
+            child: TextWidget(
+              text: '    Empty, No Repos!',
+              textSize: 20,
+              color: Colors.indigo,
+            ),
+          );
+        }
+      },
+    );
+  }
 
 }
 
