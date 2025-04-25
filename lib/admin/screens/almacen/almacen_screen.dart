@@ -118,6 +118,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
     final Color color = Color(0xFFFFFFFF);
     Size size =  MediaQuery.of(context).size;
     return Scaffold(
+      // appBar -----------------------------------------------
       appBar: AppBar(
         backgroundColor: Colors.brown,
         foregroundColor: Colors.white,
@@ -139,16 +140,17 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
           ),
         ],
       ),
+      // body -------------------------------------------------
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20,),
-
-            //search bar widget
-            //showSearchBarWidget(),
+            // 1st.- search bar widget -----------------------------------------
+            showSearchBarWidget(),
+            //------------------------------------------------------------------
             const SizedBox(height: 20,),
-
+            // 2nd.- item custom card widget -----------------------------------
             //all items
             Obx(()=>
             almacenListController.almacenList.length > 0
@@ -209,10 +211,11 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                 ),
                                 child: Column(
                                   //crossAxisAlignment: CrossAxisAlignment.start,
-                                  //mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     const SizedBox(height: 20,),
-                                    //image
+                                    // 🧼 Parte superior: to_do el contenido (imagen, datos, etc.)
+                                    //image ------------------------------------
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -279,7 +282,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                         ),
                                       ],
                                     ),
-                                    //name
+                                    //name -------------------------------------
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
@@ -297,10 +300,11 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 5,),
-                                    //Costo y variacion %
+                                    //Costo y variacion % ----------------------
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(30, 5, 10, 5),
+                                      padding: const EdgeInsets.fromLTRB(20, 0, 30, 10),
                                       child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           //Costo:
                                           TextWidget(
@@ -333,7 +337,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 10,),
-                                    //Price
+                                    //Price ------------------------------------
                                     Center(
                                       child: FittedBox(
                                         child: Row(
@@ -342,7 +346,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                             TextWidget(
                                               text: 'PVPA: ',
                                               color: Colors.green,
-                                              textSize: 18,
+                                              textSize: 14,
                                               isTitle: true,
                                             ),
                                             //pvpa
@@ -352,41 +356,57 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                               textSize: 28,
                                               isTitle: true,
                                             ),
-                                            const SizedBox(width: 25,),
+                                            const SizedBox(width: 10,),
                                             //const Spacer(),
-                                            Text(
-                                              eachItemData.pvpb!.toString(),
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                color: color,
-                                                decoration: TextDecoration.lineThrough,
-                                              ),
-                                            )
+                                            // Text(
+                                            //   eachItemData.pvpb!.toString(),
+                                            //   style: TextStyle(
+                                            //     fontSize: 18,
+                                            //     color: color,
+                                            //     decoration: TextDecoration.lineThrough,
+                                            //   ),
+                                            // )
+                                            //pvpb txt
+                                            TextWidget(
+                                              text: 'PVPB: ',
+                                              color: Colors.green,
+                                              textSize: 14,
+                                              isTitle: true,
+                                            ),
+                                            //pvpb
+                                            TextWidget(
+                                              text: eachItemData.pvpb!.toString(),
+                                              color: Colors.green,
+                                              textSize: 24,
+                                              isTitle: true,
+                                            ),
                                           ],
                                         ),
 
                                       ),
                                     ),
                                     const SizedBox(height: 5,),
+                                    // 🛒 Parte inferior: íconos fijos alineados al fondo
                                     //edit & cart btn
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(30, 5, 10, 5),
+                                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                                       child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           //edit
                                           GestureDetector(
                                             onTap: () {
-                                              // Get.to(EditAlmacen(clickedAlmacenInfo: eachItemData,));
+                                              Get.to(EditAlmacen(clickedAlmacenInfo: eachItemData,));
                                             },
                                             child: SizedBox(
-                                              width: 35,
-                                              height: 35,
+                                              width: 50,
+                                              height: 50,
                                               child: Image.asset(
                                                 "assets/images/edit.png",
                                               ),
                                             ),
                                           ),
-                                          const Spacer(),
+                                          // const Spacer(),
                                           //cart
                                           GestureDetector(
                                             onTap: () {
@@ -394,10 +414,10 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                               // addItemToOrderCart(eachItemData.almacen_id!);
                                             },
                                             child: SizedBox(
-                                              width: 35,
-                                              height: 35,
+                                              width: 50,
+                                              height: 50,
                                               child: Image.asset(
-                                                "assets/images/cart1.jpeg",
+                                                "assets/images/cart.png",
                                               ),
                                             ),
                                           ),
@@ -405,7 +425,6 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 2,),
-
                                   ],
                                 ),
                               ),
@@ -435,9 +454,9 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
               ),
             ),
             ),
+            //------------------------------------------------------------------
             const SizedBox(height: 20,),
-
-            //onReposition
+            // 3rd.- repositions widget ----------------------------------------
             Obx(()=>
             almacenListController.repoList.length > 0
                 ? Row(
@@ -466,9 +485,8 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
               ),
             ),
             ),
-
+            //------------------------------------------------------------------
             //const SizedBox(height: 30,),
-
           ],
         ),
       ),
@@ -483,7 +501,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.brown),
         controller: searchController,
         decoration: InputDecoration(
           prefixIcon: IconButton(
@@ -492,7 +510,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
               //Keyboard unfocus!!
               FocusScope.of(context).unfocus();
               Get.back();
-              //Get.to(SearchItems(typedKeyWords: searchController.text));
+              // Get.to(SearchItems(typedKeyWords: searchController.text));
             },
             icon: const Icon(
               Icons.search,
@@ -619,7 +637,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                             width: 40,
                                             height: 40,
                                             child: Image.asset(
-                                              "assets/images/pedidos.png",
+                                              "assets/images/compras.png",
                                             ),
                                           ),
                                         ),
@@ -652,6 +670,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                               textSize: 24,
                                               isTitle: true,
                                             ),
+                                            const SizedBox(width: 5),
                                             TextWidget(
                                               text: eachItemData.unidad!,
                                               color: color,
