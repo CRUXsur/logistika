@@ -284,7 +284,8 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                     ),
                                     //name -------------------------------------
                                     Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                      // padding: const EdgeInsets.all(8.0),
+                                      padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
@@ -299,7 +300,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: 5,),
+                                    // const SizedBox(height: 5,),
                                     //Costo y variacion % ----------------------
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(20, 0, 30, 10),
@@ -336,27 +337,54 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: 10,),
+                                    const SizedBox(height: 5,),
                                     //Price ------------------------------------
                                     Center(
                                       child: FittedBox(
-                                        child: Row(
+                                        // child: Row(
+                                        child: Column(
                                           children: [
-                                            //pvpa txt
-                                            TextWidget(
-                                              text: 'PVPA: ',
-                                              color: Colors.green,
-                                              textSize: 14,
-                                              isTitle: true,
-                                            ),
-                                            //pvpa
-                                            TextWidget(
-                                              text: eachItemData.pvpa!.toString(),
-                                              color: Colors.green,
-                                              textSize: 28,
-                                              isTitle: true,
+                                            Row(
+                                              children: [
+                                                //
+                                                //pvpa txt
+                                                TextWidget(
+                                                  text: 'PVPA: ',
+                                                  color: Colors.green,
+                                                  textSize: 14,
+                                                  isTitle: true,
+                                                ),
+                                                const SizedBox(width: 10,),
+                                                //pvpa
+                                                TextWidget(
+                                                  text: eachItemData.pvpa!.toString(),
+                                                  color: Colors.green,
+                                                  textSize: 28,
+                                                  isTitle: true,
+                                                ),
+                                              ],
                                             ),
                                             const SizedBox(width: 10,),
+                                            Row(
+                                              children: [
+                                                //
+                                                //pvpb txt
+                                                TextWidget(
+                                                  text: 'PVPB: ',
+                                                  color: Colors.green,
+                                                  textSize: 14,
+                                                  isTitle: true,
+                                                ),
+                                                //pvpb
+                                                TextWidget(
+                                                  text: eachItemData.pvpb!.toString(),
+                                                  color: Colors.green,
+                                                  textSize: 24,
+                                                  isTitle: true,
+                                                ),
+
+                                              ],
+                                            )
                                             //const Spacer(),
                                             // Text(
                                             //   eachItemData.pvpb!.toString(),
@@ -366,20 +394,6 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                             //     decoration: TextDecoration.lineThrough,
                                             //   ),
                                             // )
-                                            //pvpb txt
-                                            TextWidget(
-                                              text: 'PVPB: ',
-                                              color: Colors.green,
-                                              textSize: 14,
-                                              isTitle: true,
-                                            ),
-                                            //pvpb
-                                            TextWidget(
-                                              text: eachItemData.pvpb!.toString(),
-                                              color: Colors.green,
-                                              textSize: 24,
-                                              isTitle: true,
-                                            ),
                                           ],
                                         ),
 
@@ -417,7 +431,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                               width: 50,
                                               height: 50,
                                               child: Image.asset(
-                                                "assets/images/cart.png",
+                                                "assets/icono.png",
                                               ),
                                             ),
                                           ),
@@ -637,7 +651,7 @@ class _AlmacenScreenState extends State<AlmacenScreen> {
                                             width: 40,
                                             height: 40,
                                             child: Image.asset(
-                                              "assets/images/compras.png",
+                                              "assets/icono.png",
                                             ),
                                           ),
                                         ),
