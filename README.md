@@ -4,8 +4,8 @@ A Flutter application designed for logistics management. It includes features su
 
 
 ## Getting Started
-Esta aplicacion esta desarrollada para celulares iOS y Android.
-La informacion obtenida queda segura guardada y disponible en una base de datos.
+This application is developed for iOS and Android mobile devices.
+The information obtained is securely stored and available in a database.
 
 ### Prerequisites
 - Flutter SDK: Make sure you have the Flutter SDK installed. You can find installation instructions on the [official Flutter website](https://flutter.dev/docs/get-started/install).
